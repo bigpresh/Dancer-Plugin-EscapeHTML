@@ -8,47 +8,59 @@ use Dancer qw(:syntax);
 
 use HTML::Entities;
 
+our $VERSION = '0.01';
+
 =head1 NAME
 
 Dancer::Plugin::EscapeHTML - Escape HTML entities to avoid XSS vulnerabilities!
 
-our $VERSION = '0.01';
-
 
 =head1 SYNOPSIS
 
-The plugin provides convenience keywords C<encode_entities> and
-C<decode_entities> which are simply quick shortcuts to functions of the same
-name provided by L<HTML::Entities>.
+The plugin provides convenience keywords C<escape_html> and
+C<unescape_html> which are simply quick shortcuts to C<encode_entities>
+and C<decode_entities> from L<HTML::Entities>.
 
 
     use Dancer::Plugin::EscapeHTML;
 
-    my $encoded = encode_entities($some_html);
+    my $encoded = escape_html($some_html);
+
+
+It also provides optional automatic escaping of all HTML (see below.)
+
+
+=head1 DESCRIPTION
+
+This plugin is intended to provide a quick and simple way to ensure that any
+HTML passed in the tokens hashref to the template is safely escaped (encoded),
+thereby helping to avoid
+L<XSS/cross-site scripting vulnerabilities|http://en.wikipedia.org/wiki/Cross-site_scripting>.
+
 
 
 =head1 KEYWORDS
 
 When the plugin is loaded, the following keywords are exported to your app:
 
-=head2 encode_entities
+=head2 escape_html
 
 Encodes HTML entities; shortcut to C<encode_entities> from L<HTML::Entities>
 
 =cut
 
-register 'encode_entities' => sub {
+register 'escape_html' => sub {
     return HTML::Entities::encode_entities(@_);
 };
 
 
-=head2 decode_entities
+=head2 unescape_html
 
 Decodes HTML entities; shortcut to C<decode_entities> from L<HTML::Entities>
 
 =cut
 
-register 'decode_entities' => sub {
+register 'unescape_html' => sub {
     return HTML::Entities::decode_entities(@_);
 };
 
@@ -63,7 +75,7 @@ instance, add the following to your C<config.yml>:
 
     plugins:
         EscapeHTML:
-            automatic_encoding: 1
+            automatic_escaping: 1
 
 Now, all values passed to the template will be automatically encoded, so you
 should be protected from potential XSS vulnerabilities.
@@ -76,24 +88,35 @@ patterns which should be left alone.
 =cut
 
 hook before_template_render => sub {
+    my $tokens = shift;
     my $config = plugin_setting;
-    return unless $config->{automatic_encoding};
+    debug "Hook fired";
+    return unless $config->{automatic_escaping};
+    debug "OK, calling _encode";
 
-    _encode($tokens);
+    debug("Before encoding, tokens were:", $tokens);
+    $tokens = _encode($tokens);
+    debug("After encoding, tokens were:", $tokens);
 
 };
 
-# Santise a value appropriately
+# Encode values, recursing down into hash/arrayrefs.
 # TODO: this will probably choke on circular references
 sub _encode {
     my $in = shift;
+    debug "_encode called, looking at $in which is a "  .ref $in;
     if (!ref $in) {
+        debug "Encoding value $in...";
         $in = HTML::Entities::encode_entities($in);
+        debug "Encoded value: $in";
     } elsif (ref $in eq 'ARRAY') {
-        _encode($_) for @$in;
-    } elsif (ref $val eq 'HASH') {
-        _encode($_) for values %$in;
+        $in->[$_] = _encode($in->[$_]) for (0..$#$in);
+    } elsif (ref $in eq 'HASH') {
+        while (my($k,$v) = each %$in) { 
+            $in->{$k} = _encode($v);
+        }
     }
+    return $in;
 }
 
 
