@@ -12,7 +12,7 @@ our $VERSION = '0.01';
 
 =head1 NAME
 
-Dancer::Plugin::EscapeHTML - Escape HTML entities to avoid XSS vulnerabilities!
+Dancer::Plugin::EscapeHTML - Escape HTML entities to avoid XSS vulnerabilities
 
 
 =head1 SYNOPSIS
@@ -32,11 +32,18 @@ It also provides optional automatic escaping of all HTML (see below.)
 
 =head1 DESCRIPTION
 
-This plugin is intended to provide a quick and simple way to ensure that any
+This plugin is intended to provide a quick and simple way to ensure that
 HTML passed in the tokens hashref to the template is safely escaped (encoded),
 thereby helping to avoid
 L<XSS/cross-site scripting vulnerabilities|http://en.wikipedia.org/wiki/Cross-site_scripting>.
 
+You can encode specific bits of data yourself using the C<escape_html> and
+C<unescape_html> keywords, or you can enable automatic escaping of all values
+passed to the template.
+
+In a future version, it is likely that this automatic escaping can be bypassed
+for certain values - probably by providing parameter names/patterns in the
+configuration to indicate parameters which should be left alone.
 
 
 =head1 KEYWORDS
