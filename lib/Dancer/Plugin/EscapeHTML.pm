@@ -17,7 +17,7 @@ Dancer::Plugin::EscapeHTML - Escape HTML entities to avoid XSS vulnerabilities
 
 =head1 SYNOPSIS
 
-The plugin provides convenience keywords C<escape_html> and
+This plugin provides convenience keywords C<escape_html> and
 C<unescape_html> which are simply quick shortcuts to C<encode_entities>
 and C<decode_entities> from L<HTML::Entities>.
 
