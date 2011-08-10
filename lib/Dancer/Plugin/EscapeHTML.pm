@@ -88,9 +88,16 @@ Now, all values passed to the template will be automatically encoded, so you
 should be protected from potential XSS vulnerabilities.
 
 Of course, this has the drawback that you cannot provide pre-prepared HTML in
-template params to be used "as is".  It is planned that a future version of this
-module will allow you to configure exceptions, naming params / param name
-patterns which should be left alone.
+template params to be used "as is".  You can get round this by using the
+C<exclude_pattern> option to provide a pattern to match token names which should
+be exempted from automatic escaping - for example:
+
+    plugins:
+        EscapeHTML:
+            automatic_escaping: 1
+            exclude_pattern: '_html$'
+
+The above would exclude token names ending in C<_html> from being escaped.
 
 =cut
 
@@ -102,7 +109,7 @@ hook before_template_render => sub {
     debug "OK, calling _encode";
 
     debug("Before encoding, tokens were:", $tokens);
-    $tokens = _encode($tokens);
+    $tokens = _encode($tokens, $config);
     debug("After encoding, tokens were:", $tokens);
 
 };
@@ -110,7 +117,7 @@ hook before_template_render => sub {
 # Encode values, recursing down into hash/arrayrefs.
 # TODO: this will probably choke on circular references
 sub _encode {
-    my $in = shift;
+    my ($in,$config) = @_;
     debug "_encode called, looking at $in which is a "  .ref $in;
     if (!ref $in) {
         debug "Encoding value $in...";
@@ -120,6 +127,8 @@ sub _encode {
         $in->[$_] = _encode($in->[$_]) for (0..$#$in);
     } elsif (ref $in eq 'HASH') {
         while (my($k,$v) = each %$in) { 
+            next if exists $config->{exclude_pattern}
+                && $k =~ /$config->{exclude_pattern}/;
             $in->{$k} = _encode($v);
         }
     }

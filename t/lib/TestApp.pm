@@ -14,4 +14,8 @@ get '/escaped' => sub {
     return template 'index', { foo => escape_html("<p>Foo</p>") };
 };
 
+get '/excluded' => sub {
+    return template 'excluded', { foo_html => "<p>Foo</p>" };
+};
+
 1;
