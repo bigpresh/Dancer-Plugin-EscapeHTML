@@ -3,7 +3,7 @@ NAME
     vulnerabilities
 
 SYNOPSIS
-    The plugin provides convenience keywords `escape_html' and
+    This plugin provides convenience keywords `escape_html' and
     `unescape_html' which are simply quick shortcuts to `encode_entities'
     and `decode_entities' from HTML::Entities.
 
@@ -53,9 +53,17 @@ Automatic HTML encoding
     you should be protected from potential XSS vulnerabilities.
 
     Of course, this has the drawback that you cannot provide pre-prepared
-    HTML in template params to be used "as is". It is planned that a future
-    version of this module will allow you to configure exceptions, naming
-    params / param name patterns which should be left alone.
+    HTML in template params to be used "as is". You can get round this by
+    using the `exclude_pattern' option to provide a pattern to match token
+    names which should be exempted from automatic escaping - for example:
+
+        plugins:
+            EscapeHTML:
+                automatic_escaping: 1
+                exclude_pattern: '_html$'
+
+    The above would exclude token names ending in `_html' from being
+    escaped.
 
 SEE ALSO
     Dancer
