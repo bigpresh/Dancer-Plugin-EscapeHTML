@@ -12,6 +12,7 @@ WriteMakefile(
       : ()),
     PL_FILES            => {},
     PREREQ_PM => {
+        'Dancer'     => 0,
         'Test::More' => 0,
         'HTML::Entities' => 0,
     },
