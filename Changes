@@ -1,5 +1,8 @@
 Revision history for Dancer-Plugin-EscapeHTML
 
+0.04    2011-08-15
+        Declaring Dancer as a dependency would be useful!  No other changes.
+
 0.03    2011-08-10
         Add exclude_pattern option, to exclude certain template param/token
         names from automatic escaping.
