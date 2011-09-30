@@ -79,10 +79,9 @@ lot more noise in your log at the 'debug' level.
 =cut
 
 sub my_debug {
-    my $message = shift;
     my $config = plugin_setting;
-    if ($config->{'debug'}) {
-        debug $message;
+    if ($config->{debug}) {
+        debug @_;
     }
 }
 
@@ -115,12 +114,19 @@ The above would exclude token names ending in C<_html> from being escaped.
 
 =cut
 
+my $exclude_pattern;
+
 hook before_template_render => sub {
     my $tokens = shift;
     my $config = plugin_setting;
     my_debug "Hook fired";
     return unless $config->{automatic_escaping};
     my_debug "OK, calling _encode";
+
+    # compile $exclude_pattern once per template call
+    $exclude_pattern = exists $config->{exclude_pattern}
+        ? qr/$config->{exclude_pattern}/
+        : undef;
 
     my_debug("Before encoding, tokens were:", $tokens);
     $tokens = _encode($tokens, $config);
@@ -131,7 +137,7 @@ hook before_template_render => sub {
 # Encode values, recursing down into hash/arrayrefs.
 # TODO: this will probably choke on circular references
 sub _encode {
-    my ($in,$config) = @_;
+    my $in = shift;
     return unless defined $in; # avoid interpolation warnings
     my_debug "_encode called, looking at $in which is a "  .ref $in;
     if (!ref $in) {
@@ -141,9 +147,9 @@ sub _encode {
     } elsif (ref $in eq 'ARRAY') {
         $in->[$_] = _encode($in->[$_]) for (0..$#$in);
     } elsif (ref $in eq 'HASH') {
-        while (my($k,$v) = each %$in) { 
-            next if exists $config->{exclude_pattern}
-                && $k =~ /$config->{exclude_pattern}/;
+        while (my($k,$v) = each %$in) {
+            next if defined $exclude_pattern
+                && $k =~ $exclude_pattern;
             $in->{$k} = _encode($v);
         }
     }
