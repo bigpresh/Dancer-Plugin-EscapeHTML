@@ -129,7 +129,7 @@ hook before_template_render => sub {
         : undef;
 
     my_debug("Before encoding, tokens were:", $tokens);
-    $tokens = _encode($tokens, $config);
+    $tokens = _encode($tokens);
     my_debug("After encoding, tokens were:", $tokens);
 
 };
@@ -139,7 +139,7 @@ hook before_template_render => sub {
 sub _encode {
     my $in = shift;
     return unless defined $in; # avoid interpolation warnings
-    my_debug "_encode called, looking at $in which is a "  .ref $in;
+    my_debug "_encode called, looking at $in which is a " . ref $in;
     if (!ref $in) {
         my_debug "Encoding value $in...";
         $in = HTML::Entities::encode_entities($in);
