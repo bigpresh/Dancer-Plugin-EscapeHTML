@@ -79,10 +79,7 @@ lot more noise in your log at the 'debug' level.
 =cut
 
 sub my_debug {
-    my $config = plugin_setting;
-    if ($config->{debug}) {
-        debug @_;
-    }
+    debug @_ if plugin_setting->{debug};
 }
 
 =head1 Automatic HTML encoding
