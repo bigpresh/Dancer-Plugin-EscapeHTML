@@ -71,6 +71,20 @@ register 'unescape_html' => sub {
     return HTML::Entities::decode_entities(@_);
 };
 
+=head1 Optional verbose debug
+
+If you set the plugin variable 'debug' to a true value, you will get a
+lot more noise in your log at the 'debug' level.
+
+=cut
+
+sub my_debug {
+    my $message = shift;
+    my $config = plugin_setting;
+    if ($config->{'debug'}) {
+        debug $message;
+    }
+}
 
 =head1 Automatic HTML encoding
 
@@ -104,13 +118,13 @@ The above would exclude token names ending in C<_html> from being escaped.
 hook before_template_render => sub {
     my $tokens = shift;
     my $config = plugin_setting;
-    debug "Hook fired";
+    my_debug "Hook fired";
     return unless $config->{automatic_escaping};
-    debug "OK, calling _encode";
+    my_debug "OK, calling _encode";
 
-    debug("Before encoding, tokens were:", $tokens);
+    my_debug("Before encoding, tokens were:", $tokens);
     $tokens = _encode($tokens, $config);
-    debug("After encoding, tokens were:", $tokens);
+    my_debug("After encoding, tokens were:", $tokens);
 
 };
 
@@ -118,11 +132,12 @@ hook before_template_render => sub {
 # TODO: this will probably choke on circular references
 sub _encode {
     my ($in,$config) = @_;
-    debug "_encode called, looking at $in which is a "  .ref $in;
+    return unless defined $in; # avoid interpolation warnings
+    my_debug "_encode called, looking at $in which is a "  .ref $in;
     if (!ref $in) {
-        debug "Encoding value $in...";
+        my_debug "Encoding value $in...";
         $in = HTML::Entities::encode_entities($in);
-        debug "Encoded value: $in";
+        my_debug "Encoded value: $in";
     } elsif (ref $in eq 'ARRAY') {
         $in->[$_] = _encode($in->[$_]) for (0..$#$in);
     } elsif (ref $in eq 'HASH') {
