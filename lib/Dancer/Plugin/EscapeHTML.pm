@@ -71,17 +71,6 @@ register 'unescape_html' => sub {
     return HTML::Entities::decode_entities(@_);
 };
 
-=head1 Optional verbose debug
-
-If you set the plugin variable 'debug' to a true value, you will get a
-lot more noise in your log at the 'debug' level.
-
-=cut
-
-sub my_debug {
-    debug @_ if plugin_setting->{debug};
-}
-
 =head1 Automatic HTML encoding
 
 If desired, you can also enable automatic HTML encoding of all params passed to
@@ -116,19 +105,14 @@ my $exclude_pattern;
 hook before_template_render => sub {
     my $tokens = shift;
     my $config = plugin_setting;
-    my_debug "Hook fired";
     return unless $config->{automatic_escaping};
-    my_debug "OK, calling _encode";
 
     # compile $exclude_pattern once per template call
     $exclude_pattern = exists $config->{exclude_pattern}
         ? qr/$config->{exclude_pattern}/
         : undef;
 
-    my_debug("Before encoding, tokens were:", $tokens);
     $tokens = _encode($tokens);
-    my_debug("After encoding, tokens were:", $tokens);
-
 };
 
 # Encode values, recursing down into hash/arrayrefs.
@@ -136,11 +120,8 @@ hook before_template_render => sub {
 sub _encode {
     my $in = shift;
     return unless defined $in; # avoid interpolation warnings
-    my_debug "_encode called, looking at $in which is a " . ref $in;
     if (!ref $in) {
-        my_debug "Encoding value $in...";
         $in = HTML::Entities::encode_entities($in);
-        my_debug "Encoded value: $in";
     } elsif (ref $in eq 'ARRAY') {
         $in->[$_] = _encode($in->[$_]) for (0..$#$in);
     } elsif (ref $in eq 'HASH') {
