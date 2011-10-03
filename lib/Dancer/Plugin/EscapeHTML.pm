@@ -8,7 +8,7 @@ use Dancer qw(:syntax);
 
 use HTML::Entities;
 
-our $VERSION = '0.04';
+our $VERSION = '0.10';
 
 =head1 NAME
 
@@ -146,6 +146,10 @@ L<HTML::Entities>
 =head1 AUTHOR
 
 David Precious, C<< <davidp at preshweb.co.uk> >>
+
+=head1 ACKNOWLEDGEMENTS
+
+Tom Rathborne (trathborne)
 
 
 =head1 LICENSE AND COPYRIGHT
