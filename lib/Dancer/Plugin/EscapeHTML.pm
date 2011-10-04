@@ -118,23 +118,27 @@ hook before_template_render => sub {
 # Encode values, recursing down into hash/arrayrefs.
 sub _encode {
     my $in = shift;
-    return unless defined $in; # avoid interpolation warnings
-    if (!ref $in) {
-        $in = HTML::Entities::encode_entities($in);
-    } else {
-        next if exists $seen{scalar $in}; # avoid reference loops
-        $seen{scalar $in} = 1;
 
-        if (ref $in eq 'ARRAY') {
-            $in->[$_] = _encode($in->[$_]) for (0..$#$in);
-        } elsif (ref $in eq 'HASH') {
-            while (my($k,$v) = each %$in) {
-                next if defined $exclude_pattern
-                    && $k =~ $exclude_pattern;
-                $in->{$k} = _encode($v);
-            }
+    return unless defined $in; # avoid interpolation warnings
+
+    return HTML::Entities::encode_entities($in)
+        unless ref $in;
+
+    return $in
+        if exists $seen{scalar $in}; # avoid reference loops
+
+    $seen{scalar $in} = 1;
+
+    if (ref $in eq 'ARRAY') {
+        $in->[$_] = _encode($in->[$_]) for (0..$#$in);
+    } elsif (ref $in eq 'HASH') {
+        while (my($k,$v) = each %$in) {
+            next if defined $exclude_pattern
+                && $k =~ $exclude_pattern;
+            $in->{$k} = _encode($v);
         }
     }
+
     return $in;
 }
 
