@@ -41,10 +41,6 @@ You can encode specific bits of data yourself using the C<escape_html> and
 C<unescape_html> keywords, or you can enable automatic escaping of all values
 passed to the template.
 
-In a future version, it is likely that this automatic escaping can be bypassed
-for certain values - probably by providing parameter names/patterns in the
-configuration to indicate parameters which should be left alone.
-
 
 =head1 KEYWORDS
 
@@ -101,6 +97,7 @@ The above would exclude token names ending in C<_html> from being escaped.
 =cut
 
 my $exclude_pattern;
+my %seen;
 
 hook before_template_render => sub {
     my $tokens = shift;
@@ -112,17 +109,27 @@ hook before_template_render => sub {
         ? qr/$config->{exclude_pattern}/
         : undef;
 
+    # flush seen cache
+    %seen = ();
+
     $tokens = _encode($tokens);
 };
 
 # Encode values, recursing down into hash/arrayrefs.
-# TODO: this will probably choke on circular references
 sub _encode {
     my $in = shift;
+
     return unless defined $in; # avoid interpolation warnings
-    if (!ref $in) {
-        $in = HTML::Entities::encode_entities($in);
-    } elsif (ref $in eq 'ARRAY') {
+
+    return HTML::Entities::encode_entities($in)
+        unless ref $in;
+
+    return $in
+        if exists $seen{scalar $in}; # avoid reference loops
+
+    $seen{scalar $in} = 1;
+
+    if (ref $in eq 'ARRAY') {
         $in->[$_] = _encode($in->[$_]) for (0..$#$in);
     } elsif (ref $in eq 'HASH') {
         while (my($k,$v) = each %$in) {
@@ -131,6 +138,7 @@ sub _encode {
             $in->{$k} = _encode($v);
         }
     }
+
     return $in;
 }
 
@@ -149,7 +157,7 @@ David Precious, C<< <davidp at preshweb.co.uk> >>
 
 =head1 ACKNOWLEDGEMENTS
 
-Tom Rathborne (trathborne)
+Tom Rathborne C<< <tom.rathborne at gmail.com> >>
 
 
 =head1 LICENSE AND COPYRIGHT
