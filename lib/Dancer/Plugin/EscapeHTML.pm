@@ -97,6 +97,7 @@ The above would exclude token names ending in C<_html> from being escaped.
 =cut
 
 my $exclude_pattern;
+my $traverse_objects;
 my %seen;
 
 hook before_template_render => sub {
@@ -108,6 +109,8 @@ hook before_template_render => sub {
     $exclude_pattern = exists $config->{exclude_pattern}
         ? qr/$config->{exclude_pattern}/
         : undef;
+
+    $traverse_objects = $config->{traverse_objects};
 
     # flush seen cache
     %seen = ();
@@ -129,9 +132,9 @@ sub _encode {
 
     $seen{scalar $in} = 1;
 
-    if (ref $in eq 'ARRAY') {
+    if (ref $in eq 'ARRAY' or ($traverse_objects and scalar $in =~ /^.+?=ARRAY\(/)) {
         $in->[$_] = _encode($in->[$_]) for (0..$#$in);
-    } elsif (ref $in eq 'HASH') {
+    } elsif (ref $in eq 'HASH' or ($traverse_objects and scalar $in =~ /^.+?=HASH\(/)) {
         while (my($k,$v) = each %$in) {
             next if defined $exclude_pattern
                 && $k =~ $exclude_pattern;
