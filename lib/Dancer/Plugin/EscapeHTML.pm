@@ -7,7 +7,7 @@ use Dancer::Plugin;
 use Dancer qw(:syntax);
 
 use HTML::Entities;
-use Scalar::Util qw(reftype);
+use Scalar::Util qw(blessed reftype);
 
 our $VERSION = '0.11';
 
@@ -134,11 +134,11 @@ sub _encode {
     $seen{scalar $in} = 1;
 
     if (ref $in eq 'ARRAY' 
-        or ($traverse_objects and reftype($in) eq 'ARRAY'))
+        or ($traverse_objects && blessed($in) && reftype($in) eq 'ARRAY'))
     {
         $in->[$_] = _encode($in->[$_]) for (0..$#$in);
     } elsif (ref $in eq 'HASH' 
-        or ($traverse_objects and reftype($in) eq 'HASH')) 
+        or ($traverse_objects && blessed($in) && reftype($in) eq 'HASH')) 
     {
         while (my($k,$v) = each %$in) {
             next if defined $exclude_pattern
