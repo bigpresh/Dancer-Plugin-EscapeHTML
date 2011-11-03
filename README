@@ -23,11 +23,6 @@ DESCRIPTION
     and `unescape_html' keywords, or you can enable automatic escaping of
     all values passed to the template.
 
-    In a future version, it is likely that this automatic escaping can be
-    bypassed for certain values - probably by providing parameter
-    names/patterns in the configuration to indicate parameters which should
-    be left alone.
-
 KEYWORDS
     When the plugin is loaded, the following keywords are exported to your
     app:
@@ -65,6 +60,12 @@ Automatic HTML encoding
     The above would exclude token names ending in `_html' from being
     escaped.
 
+    By default, blessed objects being passed to the template will be left
+    unmolested, as digging around in the internals of the object is probably
+    not wise or desirable. However, if you do want this to be done, set the
+    `traverse_objects' setting to a true value, and objects will be treated
+    just like any other hashref/arrayref.
+
 SEE ALSO
     Dancer
 
@@ -72,6 +73,9 @@ SEE ALSO
 
 AUTHOR
     David Precious, `<davidp at preshweb.co.uk>'
+
+ACKNOWLEDGEMENTS
+    Tom Rathborne `<tom.rathborne at gmail.com>'
 
 LICENSE AND COPYRIGHT
     Copyright 2011 David Precious.
