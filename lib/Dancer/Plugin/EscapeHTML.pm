@@ -9,7 +9,7 @@ use Dancer qw(:syntax);
 use HTML::Entities;
 use Scalar::Util qw(blessed reftype);
 
-our $VERSION = '0.11';
+our $VERSION = '0.20';
 
 =head1 NAME
 
@@ -94,6 +94,12 @@ be exempted from automatic escaping - for example:
             exclude_pattern: '_html$'
 
 The above would exclude token names ending in C<_html> from being escaped.
+
+By default, blessed objects being passed to the template will be left
+unmolested, as digging around in the internals of the object is probably not
+wise or desirable.  However, if you do want this to be done, set the
+C<traverse_objects> setting to a true value, and objects will be treated just
+like any other hashref/arrayref.
 
 =cut
 
