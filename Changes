@@ -1,5 +1,10 @@
 Revision history for Dancer-Plugin-EscapeHTML
 
+0.20    2011-11-03
+        Avoid messing around escaping the internals of blessed objects in the
+        template tokens unless the new traverse_objects setting is set to a true
+        value - thanks to Tom Rathborne again (@trathborne)
+
 0.11    2011-10-03
         More changes kindly submitted by Tom Rathborne:
          - Avoid reference loops properly
