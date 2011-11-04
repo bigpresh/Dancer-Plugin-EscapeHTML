@@ -1,5 +1,9 @@
 Revision history for Dancer-Plugin-EscapeHTML
 
+0.21    2011-11-04
+        Er, adding new files to MANIFEST would give the test suite more chance
+        of running.  Muppet!  (Thanks to ambs for reporting!)
+
 0.20    2011-11-03
         Avoid messing around escaping the internals of blessed objects in the
         template tokens unless the new traverse_objects setting is set to a true
