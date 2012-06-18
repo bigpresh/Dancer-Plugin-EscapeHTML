@@ -73,8 +73,13 @@ register 'unescape_html' => sub {
 If desired, you can also enable automatic HTML encoding of all params passed to
 templates.
 
-To do so, enable the automatic_encoding option in your app's config - for
-instance, add the following to your C<config.yml>:
+If you're using Template Toolkit, you may wish to look instead at 
+L<Template::Stash::EscapeHTML> which takes care of this reliably at the template
+engine level, and is more widely-used and tested than this module.
+
+To arrange for this plugin to automatically encode HTML entities, enable the 
+automatic_encoding option in your app's config - for instance, add the 
+following to your C<config.yml>:
 
     plugins:
         EscapeHTML:
@@ -158,6 +163,8 @@ sub _encode {
 
 
 =head1 SEE ALSO
+
+L<Template::Stash::EscapeHTML>
 
 L<Dancer>
 
