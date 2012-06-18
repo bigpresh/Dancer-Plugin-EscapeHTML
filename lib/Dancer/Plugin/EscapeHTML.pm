@@ -9,7 +9,7 @@ use Dancer qw(:syntax);
 use HTML::Entities;
 use Scalar::Util qw(blessed reftype);
 
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 =head1 NAME
 
